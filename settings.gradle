@@ -1,0 +1,3 @@
+rootProject.name = "ProgressAnim"
+include ':app'
+include ':anim'
