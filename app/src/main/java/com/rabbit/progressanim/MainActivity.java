@@ -12,13 +12,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.rabbit.anim.ProgressAnim;
+import com.rabbit.anim.ProgressAnimInterface;
+
 import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private ProgressBar progressBar;
     private TextView tvProgress;
@@ -50,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
 //        executeAnimWithPropertyAnim(1);
 
         // Handler
-        executeAnimWithHandler(1);
+//        executeAnimWithHandler(1);
+
+        executeAnim();
     }
 
     private void bindView() {
@@ -140,6 +147,39 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+    }
+
+    private void executeAnim() {
+        progressBar.setMax(200);
+        ProgressAnim progressAnim = new ProgressAnim.Builder()
+                .setDuration(1000)
+                .setMax(200)
+                .setInterpolator(new LinearInterpolator())
+                .registerOnProgressListener("Main", new ProgressAnimInterface.OnProgressChangeListener() {
+                    @Override
+                    public void onChange(int progress) {
+                        progressBar.setProgress(progress);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        Log.d(TAG, "onFinish: ");
+                    }
+                })
+                .create();
+
+        // 子任务串行
+//        progressBar.postDelayed(() -> progressAnim.animateTo(100),300);
+//        progressBar.postDelayed(() -> progressAnim.animateTo(200),1000);
+
+        // 子任务并行
+        progressBar.postDelayed(() -> {
+            for (int i = 0; i < 100; i++) {
+                new Thread(() -> {
+                    progressAnim.animateOver(2);
+                }).start();
+            }
+        }, 100);
     }
 
     private static class ProgressHandler extends Handler {
