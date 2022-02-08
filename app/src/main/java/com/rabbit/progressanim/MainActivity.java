@@ -16,6 +16,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.rabbit.anim.ProgressAnimWrapper;
+
 import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private ProgressHandler progressHandler;
 
     private Handler handler;
+
+    private ProgressAnimWrapper progressAnimWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
 //        executeAnimWithPropertyAnim(1);
 
         // Handler
-        executeAnimWithHandler(1);
+//        executeAnimWithHandler(1);
+
+        // ProgressAnimWrapper
+        executeAnimWithWrapper();
     }
 
     private void bindView() {
@@ -139,7 +146,15 @@ public class MainActivity extends AppCompatActivity {
                 }, 20);
                 break;
         }
+    }
 
+    /**
+     * ProgressAnimWrapper执行动画
+     */
+    public void executeAnimWithWrapper() {
+        progressAnimWrapper = new ProgressAnimWrapper(progressBar, 1000, new LinearInterpolator(), 200);
+        postDelayed(() -> progressAnimWrapper.animateTo(100), 200);
+        postDelayed(() -> progressAnimWrapper.animateTo(200), 400);
     }
 
     private static class ProgressHandler extends Handler {
@@ -187,6 +202,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return true;
         }
+    }
+
+    /**
+     * 延时任务
+     */
+    private void postDelayed(@NonNull Runnable r, long timeMillis) {
+        handler.postDelayed(r, timeMillis);
     }
 
     @Override
